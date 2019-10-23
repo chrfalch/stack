@@ -28,7 +28,7 @@ import {
   SceneDescriptorMap,
   NavigationStackOptions,
 } from '../../types';
-import { TransitionContext } from '../../utils/StackGestureContext';
+import TransitionContext from '../../utils/TransitionContext';
 
 type ProgressValues = {
   [key: string]: Animated.Value<number>;
