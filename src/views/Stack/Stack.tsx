@@ -294,7 +294,7 @@ export default class Stack extends React.Component<Props, State> {
     { route }: { route: NavigationRoute },
     closing: boolean
   ) => {
-    this.setState({ inTransition: true });
+    this.setState({ inTransition: false });
     const descriptor = this.props.descriptors[route.key];
 
     descriptor &&
