@@ -28,6 +28,7 @@ import {
   SceneDescriptorMap,
   NavigationStackOptions,
 } from '../../types';
+import { TransitionContext } from '../../utils/StackGestureContext';
 
 type ProgressValues = {
   [key: string]: Animated.Value<number>;
@@ -57,6 +58,7 @@ type Props = {
 };
 
 type State = {
+  inTransition: boolean;
   routes: NavigationRoute[];
   descriptors: SceneDescriptorMap;
   scenes: HeaderScene<NavigationRoute>[];
@@ -216,6 +218,7 @@ export default class Stack extends React.Component<Props, State> {
   }
 
   state: State = {
+    inTransition: false,
     routes: [],
     scenes: [],
     progress: {},
@@ -278,6 +281,7 @@ export default class Stack extends React.Component<Props, State> {
     { route }: { route: NavigationRoute },
     closing: boolean
   ) => {
+    this.setState({ inTransition: true });
     const { descriptors } = this.props;
     const descriptor = descriptors[route.key];
 
@@ -290,6 +294,7 @@ export default class Stack extends React.Component<Props, State> {
     { route }: { route: NavigationRoute },
     closing: boolean
   ) => {
+    this.setState({ inTransition: true });
     const descriptor = this.props.descriptors[route.key];
 
     descriptor &&
@@ -440,48 +445,60 @@ export default class Stack extends React.Component<Props, State> {
                 active={isScreenActive}
                 pointerEvents="box-none"
               >
-                <StackItem
-                  index={index}
-                  active={index === self.length - 1}
-                  focused={focused}
-                  closing={closingRoutesKeys.includes(route.key)}
-                  layout={layout}
-                  current={current}
-                  scene={scene}
-                  previousScene={scenes[index - 1]}
-                  navigation={navigation}
-                  safeAreaInsetTop={safeAreaInsetTop}
-                  safeAreaInsetRight={safeAreaInsetRight}
-                  safeAreaInsetBottom={safeAreaInsetBottom}
-                  safeAreaInsetLeft={safeAreaInsetLeft}
-                  cardTransparent={cardTransparent}
-                  cardOverlayEnabled={cardOverlayEnabled}
-                  cardShadowEnabled={cardShadowEnabled}
-                  cardStyle={cardStyle}
-                  onPageChangeStart={onPageChangeStart}
-                  onPageChangeConfirm={onPageChangeConfirm}
-                  onPageChangeCancel={onPageChangeCancel}
-                  floatingHeaderHeight={floatingHeaderHeights[route.key]}
-                  headerShown={header !== null && headerShown !== false}
-                  getPreviousRoute={getPreviousRoute}
-                  headerMode={headerMode}
-                  headerTransparent={headerTransparent}
-                  renderHeader={renderHeader}
-                  renderScene={renderScene}
-                  onOpenRoute={onOpenRoute}
-                  onCloseRoute={onCloseRoute}
-                  onTransitionStart={this.handleTransitionStart}
-                  onTransitionEnd={this.handleTransitionEnd}
-                  onGoBack={onGoBack}
-                  gestureDirection={gestureDirection}
-                  transitionSpec={transitionSpec}
-                  cardStyleInterpolator={cardStyleInterpolator}
-                  headerStyleInterpolator={headerStyleInterpolator}
-                  gestureEnabled={index !== 0 && getGesturesEnabled({ route })}
-                  gestureResponseDistance={gestureResponseDistance}
-                  gestureVelocityImpact={gestureVelocityImpact}
-                  {...transitionConfig}
-                />
+                <TransitionContext.Provider
+                  value={{
+                    progress: progress[focusedRoute.key],
+                    index: index,
+                    inTransition: this.state.inTransition,
+                    isForward: closingRoutesKeys.length === 0,
+                    active: route.key === focusedRoute.key,
+                  }}
+                >
+                  <StackItem
+                    index={index}
+                    active={index === self.length - 1}
+                    focused={focused}
+                    closing={closingRoutesKeys.includes(route.key)}
+                    layout={layout}
+                    current={current}
+                    scene={scene}
+                    previousScene={scenes[index - 1]}
+                    navigation={navigation}
+                    safeAreaInsetTop={safeAreaInsetTop}
+                    safeAreaInsetRight={safeAreaInsetRight}
+                    safeAreaInsetBottom={safeAreaInsetBottom}
+                    safeAreaInsetLeft={safeAreaInsetLeft}
+                    cardTransparent={cardTransparent}
+                    cardOverlayEnabled={cardOverlayEnabled}
+                    cardShadowEnabled={cardShadowEnabled}
+                    cardStyle={cardStyle}
+                    onPageChangeStart={onPageChangeStart}
+                    onPageChangeConfirm={onPageChangeConfirm}
+                    onPageChangeCancel={onPageChangeCancel}
+                    floatingHeaderHeight={floatingHeaderHeights[route.key]}
+                    headerShown={header !== null && headerShown !== false}
+                    getPreviousRoute={getPreviousRoute}
+                    headerMode={headerMode}
+                    headerTransparent={headerTransparent}
+                    renderHeader={renderHeader}
+                    renderScene={renderScene}
+                    onOpenRoute={onOpenRoute}
+                    onCloseRoute={onCloseRoute}
+                    onTransitionStart={this.handleTransitionStart}
+                    onTransitionEnd={this.handleTransitionEnd}
+                    onGoBack={onGoBack}
+                    gestureDirection={gestureDirection}
+                    transitionSpec={transitionSpec}
+                    cardStyleInterpolator={cardStyleInterpolator}
+                    headerStyleInterpolator={headerStyleInterpolator}
+                    gestureEnabled={
+                      index !== 0 && getGesturesEnabled({ route })
+                    }
+                    gestureResponseDistance={gestureResponseDistance}
+                    gestureVelocityImpact={gestureVelocityImpact}
+                    {...transitionConfig}
+                  />
+                </TransitionContext.Provider>
               </MaybeScreen>
             );
           })}
