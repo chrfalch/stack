@@ -447,7 +447,10 @@ export default class Stack extends React.Component<Props, State> {
               >
                 <TransitionContext.Provider
                   value={{
-                    progress: progress[focusedRoute.key],
+                    progress:
+                      closingRoutesKeys.length === 0
+                        ? progress[focusedRoute.key]
+                        : next,
                     index: index,
                     inTransition: this.state.inTransition,
                     isForward: closingRoutesKeys.length === 0,
