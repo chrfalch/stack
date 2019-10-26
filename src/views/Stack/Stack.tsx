@@ -450,11 +450,16 @@ export default class Stack extends React.Component<Props, State> {
                     progress:
                       closingRoutesKeys.length === 0
                         ? progress[focusedRoute.key]
-                        : next,
+                        : progress[
+                            Object.keys(progress)[navigation.state.index + 1]
+                          ],
                     index: index,
-                    inTransition: this.state.inTransition,
+                    inTransition:
+                      this.state.inTransition && index === self.length - 1
+                        ? true
+                        : index === self.length - 2,
                     isForward: closingRoutesKeys.length === 0,
-                    active: route.key === focusedRoute.key,
+                    focused: route.key === focusedRoute.key,
                   }}
                 >
                   <StackItem

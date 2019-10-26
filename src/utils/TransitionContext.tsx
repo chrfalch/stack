@@ -6,7 +6,7 @@ type TransitionContextType = {
   index: number;
   inTransition: boolean;
   isForward: boolean;
-  active: boolean;
+  focused: boolean;
 };
 
 export default React.createContext<TransitionContextType | undefined>(
